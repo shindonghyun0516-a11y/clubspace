@@ -2,31 +2,31 @@
 
 ## 📋 Phase 1: Foundation & Infrastructure (Weeks 1-2)
 
-### T001: Next.js 프로젝트 초기 설정 [P0] - 0.5주
-- [ ] Next.js 14 프로젝트 생성 (`npx create-next-app@latest`)
-- [ ] TypeScript 설정 및 구성
-- [ ] Tailwind CSS 설치 및 기본 구성
-- [ ] ESLint, Prettier 설정
-- [ ] 기본 폴더 구조 생성 (`components`, `lib`, `hooks`, `store`)
+### T001: Next.js 프로젝트 초기 설정 [P0] - 0.5주 ✅ **완료**
+- [x] Next.js 14 프로젝트 생성 (`npx create-next-app@latest`)
+- [x] TypeScript 설정 및 구성
+- [x] Tailwind CSS 설치 및 기본 구성
+- [x] ESLint, Prettier 설정
+- [x] 기본 폴더 구조 생성 (`components`, `lib`, `hooks`, `store`)
 
-### T002: Firebase 프로젝트 구성 [P0] - 0.5주
-- [ ] Firebase 프로젝트 생성 및 웹 앱 등록
-- [ ] Firebase SDK 설치 (`firebase`, `@firebase/auth`, `@firebase/firestore`)
-- [ ] Firebase 설정 파일 생성 (`lib/firebase.ts`)
-- [ ] Authentication, Firestore, Storage, Functions 활성화
-- [ ] 환경변수 설정 (`.env.local`)
+### T002: Firebase 프로젝트 구성 [P0] - 0.5주 ✅ **완료**
+- [x] Firebase 프로젝트 생성 및 웹 앱 등록
+- [x] Firebase SDK 설치 (`firebase`, `@firebase/auth`, `@firebase/firestore`)
+- [x] Firebase 설정 파일 생성 (`lib/firebase.ts`)
+- [x] Authentication, Firestore, Storage, Functions 활성화
+- [x] 환경변수 설정 (`.env.local`)
 
-### T003: 개발 환경 구성 [P0] - 0.5주
-- [ ] Firebase Emulators Suite 설치 및 설정
-- [ ] VS Code 확장 프로그램 설정 권장사항 작성
-- [ ] 로컬 개발 스크립트 작성 (`package.json`)
-- [ ] Git 저장소 초기화 및 `.gitignore` 설정
+### T003: 개발 환경 구성 [P0] - 0.5주 ✅ **완료**
+- [x] Firebase Emulators Suite 설치 및 설정
+- [x] VS Code 확장 프로그램 설정 권장사항 작성
+- [x] 로컬 개발 스크립트 작성 (`package.json`)
+- [x] Git 저장소 초기화 및 `.gitignore` 설정
 
-### T004: 기본 라우팅 및 페이지 구조 [P0] - 0.5주
-- [ ] Next.js App Router 기본 페이지 생성
-- [ ] 레이아웃 컴포넌트 생성 (`app/layout.tsx`)
-- [ ] 기본 페이지들 생성 (`/, /dashboard, /clubs, /events, /chat, /profile`)
-- [ ] 네비게이션 컴포넌트 기본 구조
+### T004: 기본 라우팅 및 페이지 구조 [P0] - 0.5주 ✅ **완료**
+- [x] Next.js App Router 기본 페이지 생성
+- [x] 레이아웃 컴포넌트 생성 (`app/layout.tsx`)
+- [x] 기본 페이지들 생성 (`/, /dashboard, /clubs, /events`)
+- [x] 네비게이션 컴포넌트 기본 구조
 
 ## 📋 Phase 2: Authentication & User Management (Weeks 3-4)
 

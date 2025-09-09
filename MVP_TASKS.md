@@ -22,27 +22,27 @@
 
 ## 📋 MVP Phase 1: Foundation (Weeks 1-2)
 
-### MVP-T001: 프로젝트 기본 설정 [필수] - 1주
+### MVP-T001: 프로젝트 기본 설정 [필수] - 1주 ✅ **완료**
 **Week 1 완료 목표**
-- [ ] Next.js 14 프로젝트 생성 (`npx create-next-app@latest clubspace`)
-- [ ] TypeScript, Tailwind CSS 설정
-- [ ] ESLint, Prettier 기본 설정
-- [ ] 폴더 구조 생성 (`app`, `components`, `lib`, `hooks`)
-- [ ] Firebase 프로젝트 생성 및 SDK 설치
-- [ ] 환경변수 설정 (`.env.local`)
-- [ ] Git 저장소 초기화
+- [x] Next.js 14 프로젝트 생성 (`npx create-next-app@latest clubspace`)
+- [x] TypeScript, Tailwind CSS 설정
+- [x] ESLint, Prettier 기본 설정
+- [x] 폴더 구조 생성 (`app`, `components`, `lib`, `hooks`)
+- [x] Firebase 프로젝트 생성 및 SDK 설치
+- [x] 환경변수 설정 (`.env.local`)
+- [x] Git 저장소 초기화
 
-### MVP-T002: 기본 라우팅 및 레이아웃 [필수] - 1주
+### MVP-T002: 기본 라우팅 및 레이아웃 [필수] - 1주 ✅ **완료**
 **Week 2 완료 목표**
-- [ ] Next.js App Router 기본 구조 설정
-- [ ] 메인 레이아웃 컴포넌트 (`app/layout.tsx`)
-- [ ] 기본 페이지 생성:
+- [x] Next.js App Router 기본 구조 설정
+- [x] 메인 레이아웃 컴포넌트 (`app/layout.tsx`)
+- [x] 기본 페이지 생성:
   - `/` - 랜딩 페이지
   - `/dashboard` - 대시보드
-  - `/clubs/[id]` - 클럽 상세
-  - `/events/[id]` - 이벤트 상세
-- [ ] 기본 네비게이션 컴포넌트
-- [ ] 모바일 반응형 기본 레이아웃
+  - `/clubs` - 클럽 목록
+  - `/events` - 이벤트 목록
+- [x] 기본 네비게이션 컴포넌트
+- [x] 모바일 반응형 기본 레이아웃
 
 ---
 
