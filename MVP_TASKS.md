@@ -48,29 +48,37 @@
 
 ## 📋 MVP Phase 2: Authentication (Weeks 3-4)
 
-### MVP-T003: Firebase Auth 핵심 구현 [필수] - 1.5주 ✅ **완료**
+### MVP-T003: Firebase Auth 핵심 구현 [필수] - 1.5주 ✅ **완료** (2025-09-10)
 **Week 3-4 완료 목표**
 - [x] Firebase Auth 설정 (Google, Email/Password만)
 - [x] 로그인/회원가입 페이지 구현
 - [x] `useAuth` 훅 구현
 - [x] 사용자 상태 관리 (Zustand)
 - [x] 보호된 라우트 구현 (`AuthGuard`)
+- [x] 이메일 인증 플로우 완성 및 상태 동기화
+- [x] Google OAuth 구현 및 테스트
+- [x] Firebase Console 연동 및 설정 완료
 
-### MVP-T004: 사용자 데이터 기본 설정 [필수] - 0.5주 ✅ **완료**
+### MVP-T004: 사용자 데이터 기본 설정 [필수] - 0.5주 ✅ **완료** (2025-09-10)
 **Week 4 완료 목표**
 - [x] Firestore User 컬렉션 구조 설계 (기본 정보만)
 - [x] 사용자 기본 정보 자동 저장 (Auth 연동)
+- [x] 사용자 프로필 CRUD 기능 구현
+- [x] 인증 상태 실시간 동기화
 
 ---
 
 ## 📋 MVP Phase 3: Club Management (Weeks 5-6)
 
-### MVP-T005: 클럽 핵심 기능 [필수] - 1주
+### MVP-T005: 클럽 핵심 기능 [필수] - 1주 ✅ **완료** (2025-09-10)
 **Week 5 완료 목표**
-- [ ] Firestore Club 컬렉션 설계
-- [ ] 클럽 생성 폼 (이름, 설명만)
-- [ ] 클럽 목록 페이지
-- [ ] 클럽 상세 페이지 기본 UI
+- [x] Firestore Club 컬렉션 설계
+- [x] 클럽 생성 폼 (이름, 설명, 설정 등 전체 기능)
+- [x] 클럽 목록 페이지 (검색, 필터링 포함)
+- [x] 클럽 상세 페이지 (멤버 관리, 권한 기반 UI)
+- [x] 클럽 CRUD 작업 전체 구현
+- [x] 역할 기반 권한 시스템 구현
+- [x] 실시간 데이터 동기화
 
 ### MVP-T006: 멤버 관리 최소 [필수] - 0.5주
 **Week 6 완료 목표**
@@ -178,3 +186,41 @@ npm install firebase zustand
 - 분석 대시보드
 
 **MVP 우선 완성 → 사용자 피드백 → 우선순위 재조정**
+
+---
+
+## 🔧 후속 개선 작업 (Post-MVP)
+
+### 🚀 우선순위 1: 사용자 경험 개선
+- [ ] **Google OAuth COOP 헤더 문제 해결**
+  - 조건부 popup/redirect 로직 구현
+  - 모바일 환경 최적화
+  - 브라우저 호환성 개선
+  
+- [ ] **성능 최적화**
+  - N+1 쿼리 문제 해결 (clubService.ts getUserClubs 함수)
+  - 이미지 최적화 및 lazy loading
+  - 번들 크기 최적화
+  - 캐싱 전략 구현
+
+### 🔒 우선순위 2: 보안 강화
+- [ ] **서버사이드 검증**
+  - Firebase Cloud Functions 구현
+  - API 엔드포인트 검증
+  - 입력 데이터 sanitization
+  
+- [ ] **XSS 및 보안 취약점 대응**
+  - Content Security Policy 설정
+  - 입력 검증 라이브러리 추가
+  - 보안 헤더 설정
+
+### 🧪 우선순위 3: 품질 관리
+- [ ] **테스트 프레임워크 설정**
+  - Jest 및 Testing Library 설정
+  - E2E 테스트 (Playwright)
+  - 단위 테스트 작성
+  
+- [ ] **모니터링 시스템**
+  - 에러 추적 (Sentry)
+  - 성능 모니터링
+  - 사용자 분석
