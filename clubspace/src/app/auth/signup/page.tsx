@@ -92,7 +92,7 @@ export default function SignUpPage() {
   return (
     <AuthGuard requireAuth={false}>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+        <div className="max-w-md w-full space-y-8">
         <div>
           <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xl">C</span>
@@ -293,6 +293,7 @@ export default function SignUpPage() {
           >
             ← 홈으로 돌아가기
           </Link>
+        </div>
         </div>
       </div>
     </AuthGuard>

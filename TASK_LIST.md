@@ -30,30 +30,30 @@
 
 ## 📋 Phase 2: Authentication & User Management (Weeks 3-4)
 
-### T005: Firebase Auth 통합 [P0] - 1주
-- [ ] Firebase Auth 설정 및 provider 구성 (Google, Email/Password)
-- [ ] 로그인/회원가입 페이지 UI 구현
-- [ ] Auth context 및 hooks 구현 (`useAuth`)
-- [ ] 로그인/로그아웃 기능 구현
-- [ ] 소셜 로그인 (Google) 구현
+### T005: Firebase Auth 통합 [P0] - 1주 ✅ **완료**
+- [x] Firebase Auth 설정 및 provider 구성 (Google, Email/Password)
+- [x] 로그인/회원가입 페이지 UI 구현
+- [x] Auth context 및 hooks 구현 (`useAuth`)
+- [x] 로그인/로그아웃 기능 구현
+- [x] 소셜 로그인 (Google) 구현
 
-### T006: 사용자 프로필 시스템 [P0] - 0.5주
-- [ ] User 데이터 모델 정의 (Firestore)
-- [ ] 사용자 프로필 생성 함수 구현
-- [ ] 프로필 읽기/업데이트 API 함수
-- [ ] 프로필 페이지 UI 구현
+### T006: 사용자 프로필 시스템 [P0] - 0.5주 ✅ **완료**
+- [x] User 데이터 모델 정의 (Firestore)
+- [x] 사용자 프로필 생성 함수 구현
+- [x] 프로필 읽기/업데이트 API 함수
+- [x] 프로필 페이지 UI 구현
 
-### T007: 보호된 라우트 구현 [P0] - 0.5주
-- [ ] 인증 가드 컴포넌트 구현 (`AuthGuard`)
-- [ ] 보호된 페이지들에 인증 가드 적용
-- [ ] 로그인 리다이렉션 로직 구현
-- [ ] 인증 상태에 따른 네비게이션 표시
+### T007: 보호된 라우트 구현 [P0] - 0.5주 ✅ **완료**
+- [x] 인증 가드 컴포넌트 구현 (`AuthGuard`)
+- [x] 보호된 페이지들에 인증 가드 적용
+- [x] 로그인 리다이렉션 로직 구현
+- [x] 인증 상태에 따른 네비게이션 표시
 
-### T008: 세션 관리 [P0] - 0.5주
-- [ ] Firebase Auth 토큰 자동 갱신 구현
-- [ ] 로컬 스토리지 기반 세션 지속성
-- [ ] 사용자 상태 전역 관리 (Zustand)
-- [ ] 인증 에러 처리
+### T008: 세션 관리 [P0] - 0.5주 ✅ **완료**
+- [x] Firebase Auth 토큰 자동 갱신 구현
+- [x] 로컬 스토리지 기반 세션 지속성
+- [x] 사용자 상태 전역 관리 (Zustand)
+- [x] 인증 에러 처리
 
 ## 📋 Phase 3: Club Management (Weeks 5-6)
 

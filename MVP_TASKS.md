@@ -48,18 +48,18 @@
 
 ## 📋 MVP Phase 2: Authentication (Weeks 3-4)
 
-### MVP-T003: Firebase Auth 핵심 구현 [필수] - 1.5주
+### MVP-T003: Firebase Auth 핵심 구현 [필수] - 1.5주 ✅ **완료**
 **Week 3-4 완료 목표**
-- [ ] Firebase Auth 설정 (Google, Email/Password만)
-- [ ] 로그인/회원가입 페이지 구현
-- [ ] `useAuth` 훅 구현
-- [ ] 사용자 상태 관리 (Zustand)
-- [ ] 보호된 라우트 구현 (`AuthGuard`)
+- [x] Firebase Auth 설정 (Google, Email/Password만)
+- [x] 로그인/회원가입 페이지 구현
+- [x] `useAuth` 훅 구현
+- [x] 사용자 상태 관리 (Zustand)
+- [x] 보호된 라우트 구현 (`AuthGuard`)
 
-### MVP-T004: 사용자 데이터 기본 설정 [필수] - 0.5주
+### MVP-T004: 사용자 데이터 기본 설정 [필수] - 0.5주 ✅ **완료**
 **Week 4 완료 목표**
-- [ ] Firestore User 컬렉션 구조 설계 (기본 정보만)
-- [ ] 사용자 기본 정보 자동 저장 (Auth 연동)
+- [x] Firestore User 컬렉션 구조 설계 (기본 정보만)
+- [x] 사용자 기본 정보 자동 저장 (Auth 연동)
 
 ---
 
