@@ -33,31 +33,81 @@ service cloud.firestore {
       }
     }
     
-    // Clubs collection
-    match /clubs/{clubId} {
-      // Anyone can read club basic info
-      allow read: if isSignedIn();
-      
-      // Only club owner can create/update club
-      allow create: if isSignedIn() && isEmailVerified() 
-        && request.auth.uid == resource.data.ownerUid;
-      allow update: if isSignedIn() && isEmailVerified()
-        && request.auth.uid == resource.data.ownerUid;
-      allow delete: if isSignedIn() 
-        && request.auth.uid == resource.data.ownerUid;
+    // Helper functions for club access
+    function isClubMember(clubId, uid) {
+      return exists(/databases/$(database)/documents/clubMembers/$(clubId + '_' + uid));
     }
     
-    // Club members collection
-    match /clubs/{clubId}/members/{memberId} {
-      // Members can read member list
-      allow read: if isSignedIn();
+    function isClubOwner(clubId, uid) {
+      return get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == uid;
+    }
+    
+    function isClubOrganizer(clubId, uid) {
+      let memberDoc = get(/databases/$(database)/documents/clubMembers/$(clubId + '_' + uid));
+      return memberDoc.data.role in ['owner', 'organizer'];
+    }
+    
+    function hasClubPermission(clubId, uid, permission) {
+      let memberDoc = get(/databases/$(database)/documents/clubMembers/$(clubId + '_' + uid));
+      return memberDoc.data.permissions[permission] == true;
+    }
+    
+    // Clubs collection
+    match /clubs/{clubId} {
+      // Public clubs can be read by anyone, private clubs only by members
+      allow read: if isSignedIn() && 
+        (resource.data.isPublic == true || isClubMember(clubId, request.auth.uid));
       
-      // Users can manage their own membership
-      allow write: if isOwner(memberId);
+      // Only signed-in users can create clubs
+      allow create: if isSignedIn() && isEmailVerified() 
+        && request.auth.uid == request.resource.data.ownerUid
+        && request.resource.data.memberCount == 1;
       
-      // Club owners can manage all memberships
-      allow write: if isSignedIn() && 
-        get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == request.auth.uid;
+      // Only club owner can update club settings
+      allow update: if isSignedIn() && isEmailVerified()
+        && isClubOwner(clubId, request.auth.uid);
+      
+      // Only club owner can delete/archive club
+      allow delete: if isSignedIn() 
+        && isClubOwner(clubId, request.auth.uid);
+    }
+    
+    // Club members collection (flat structure for better performance)
+    match /clubMembers/{membershipId} {
+      // Members can read member list of clubs they belong to
+      allow read: if isSignedIn() && 
+        isClubMember(resource.data.clubId, request.auth.uid);
+      
+      // Users can join clubs (create their own membership)
+      allow create: if isSignedIn() && isEmailVerified()
+        && request.auth.uid == request.resource.data.uid
+        && request.resource.data.status == 'active'
+        && membershipId == (request.resource.data.clubId + '_' + request.resource.data.uid);
+      
+      // Users can leave clubs (delete their own membership)
+      allow delete: if isSignedIn() 
+        && request.auth.uid == resource.data.uid
+        && resource.data.role != 'owner';
+      
+      // Users can update their own activity timestamp
+      allow update: if isSignedIn() 
+        && request.auth.uid == resource.data.uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.clubId == resource.data.clubId
+        && request.resource.data.role == resource.data.role;
+      
+      // Club owners and organizers can manage memberships
+      allow update, delete: if isSignedIn() 
+        && isClubOrganizer(resource.data.clubId, request.auth.uid)
+        && resource.data.role != 'owner'; // Cannot modify owner role
+    }
+    
+    // Club statistics collection
+    match /clubStats/{clubId} {
+      allow read: if isSignedIn() && isClubMember(clubId, request.auth.uid);
+      
+      // Only system functions should write stats
+      allow write: if false;
     }
     
     // Events collection

@@ -319,10 +319,19 @@ export const useAuthStore = create<AuthStore>()(
               return;
             }
             
+            // Firebase Auth 상태 새로고침 (이메일 인증 상태 포함)
+            await currentUser.reload();
+            
             const userProfile = await getUserProfile(currentUser.uid);
             if (userProfile) {
+              // Firebase Auth의 최신 emailVerified 상태 반영
+              const updatedProfile = {
+                ...userProfile,
+                emailVerified: currentUser.emailVerified
+              };
+              
               set({ 
-                user: userProfile,
+                user: updatedProfile,
                 isAuthenticated: true,
                 isLoading: false 
               });
@@ -359,8 +368,14 @@ export const useAuthStore = create<AuthStore>()(
                   const userProfile = await getUserProfile(firebaseUser.uid);
                   
                   if (userProfile) {
+                    // Firebase Auth의 최신 emailVerified 상태 반영
+                    const updatedProfile = {
+                      ...userProfile,
+                      emailVerified: firebaseUser.emailVerified
+                    };
+                    
                     set({ 
-                      user: userProfile, 
+                      user: updatedProfile, 
                       isAuthenticated: true, 
                       isLoading: false,
                       isInitialized: true
