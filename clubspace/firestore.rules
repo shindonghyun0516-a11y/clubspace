@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for authentication
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    
+    // Users collection - users can read/write their own profile
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId) && isEmailVerified();
+      allow create: if isOwner(userId);
+      
+      // Public user information (for member lists, etc.)
+      match /public/{document=**} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
+      
+      // Private user data (preferences, sensitive info)
+      match /private/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // Clubs collection
+    match /clubs/{clubId} {
+      // Anyone can read club basic info
+      allow read: if isSignedIn();
+      
+      // Only club owner can create/update club
+      allow create: if isSignedIn() && isEmailVerified() 
+        && request.auth.uid == resource.data.ownerUid;
+      allow update: if isSignedIn() && isEmailVerified()
+        && request.auth.uid == resource.data.ownerUid;
+      allow delete: if isSignedIn() 
+        && request.auth.uid == resource.data.ownerUid;
+    }
+    
+    // Club members collection
+    match /clubs/{clubId}/members/{memberId} {
+      // Members can read member list
+      allow read: if isSignedIn();
+      
+      // Users can manage their own membership
+      allow write: if isOwner(memberId);
+      
+      // Club owners can manage all memberships
+      allow write: if isSignedIn() && 
+        get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == request.auth.uid;
+    }
+    
+    // Events collection
+    match /clubs/{clubId}/events/{eventId} {
+      // Anyone in the club can read events
+      allow read: if isSignedIn();
+      
+      // Only club members can create events (for now, could be more restrictive)
+      allow create: if isSignedIn() && isEmailVerified();
+      
+      // Event creator or club owner can update/delete
+      allow update, delete: if isSignedIn() && 
+        (request.auth.uid == resource.data.creatorUid ||
+         get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == request.auth.uid);
+    }
+    
+    // RSVP collection
+    match /clubs/{clubId}/events/{eventId}/rsvps/{userId} {
+      // Anyone can read RSVPs
+      allow read: if isSignedIn();
+      
+      // Users can manage their own RSVPs
+      allow write: if isOwner(userId) && isEmailVerified();
+    }
+    
+    // Posts/Messages collection
+    match /clubs/{clubId}/posts/{postId} {
+      // Anyone in the club can read posts
+      allow read: if isSignedIn();
+      
+      // Club members can create posts
+      allow create: if isSignedIn() && isEmailVerified();
+      
+      // Post author or club owner can update/delete
+      allow update, delete: if isSignedIn() && 
+        (request.auth.uid == resource.data.authorUid ||
+         get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == request.auth.uid);
+    }
+    
+    // Chat messages collection
+    match /clubs/{clubId}/messages/{messageId} {
+      // Anyone in the club can read messages
+      allow read: if isSignedIn();
+      
+      // Club members can send messages
+      allow create: if isSignedIn() && isEmailVerified()
+        && request.auth.uid == request.resource.data.senderUid;
+      
+      // Message sender can update their own messages (e.g., mark as edited)
+      allow update: if isSignedIn() && 
+        request.auth.uid == resource.data.senderUid;
+      
+      // Message sender or club owner can delete messages
+      allow delete: if isSignedIn() && 
+        (request.auth.uid == resource.data.senderUid ||
+         get(/databases/$(database)/documents/clubs/$(clubId)).data.ownerUid == request.auth.uid);
+    }
+    
+    // Global settings (read-only for users)
+    match /settings/{document=**} {
+      allow read: if isSignedIn();
+    }
+    
+    // Analytics and logs (write-only for system)
+    match /analytics/{document=**} {
+      allow read: if false; // No user access
+      allow write: if false; // Only server-side functions
+    }
+  }
+}

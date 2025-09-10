@@ -1,10 +1,20 @@
+'use client';
+
+import { AuthGuard } from '@/components/auth';
+import { useAuth } from '@/hooks/useAuth';
+
 export default function Dashboard() {
+  const { user } = useAuth();
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">대시보드</h1>
-        <p className="text-gray-600">클럽 활동 현황을 한눈에 확인하세요</p>
-      </div>
+    <AuthGuard requireAuth={true}>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            안녕하세요, {user?.displayName || '사용자'}님! 👋
+          </h1>
+          <p className="text-gray-600">클럽 활동 현황을 한눈에 확인하세요</p>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -64,6 +74,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }
