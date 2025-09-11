@@ -18,7 +18,6 @@ export interface Club {
 
 export interface ClubSettings {
   allowMemberInvites: boolean;
-  requireApprovalToJoin: boolean;
   allowPublicEvents: boolean;
   defaultEventVisibility: 'public' | 'members_only' | 'organizers_only';
   allowMemberPosts: boolean;
@@ -31,7 +30,6 @@ export interface ClubMember {
   uid: string;
   role: ClubRole;
   joinedAt: Date;
-  invitedBy?: string;
   status: 'active' | 'inactive' | 'banned';
   lastActivityAt: Date;
   permissions: ClubPermissions;
@@ -48,17 +46,6 @@ export interface ClubPermissions {
   canAccessFinances: boolean;
 }
 
-export interface ClubInvite {
-  inviteId: string;
-  clubId: string;
-  inviterUid: string;
-  inviteeEmail?: string;
-  inviteeUid?: string;
-  createdAt: Date;
-  expiresAt: Date;
-  status: 'pending' | 'accepted' | 'declined' | 'expired';
-  message?: string;
-}
 
 export interface ClubStats {
   clubId: string;
@@ -81,7 +68,7 @@ export interface CreateClubData {
   settings: Partial<ClubSettings>;
 }
 
-export interface UpdateClubData extends Partial<Omit<Club, 'clubId' | 'ownerUid' | 'createdAt' | 'memberCount'>> {}
+export type UpdateClubData = Partial<Omit<Club, 'clubId' | 'ownerUid' | 'createdAt' | 'memberCount'>>
 
 // Club state management
 export interface ClubState {
@@ -135,7 +122,6 @@ export interface ClubSearchParams {
 // Default settings
 export const DEFAULT_CLUB_SETTINGS: ClubSettings = {
   allowMemberInvites: true,
-  requireApprovalToJoin: false,
   allowPublicEvents: true,
   defaultEventVisibility: 'members_only',
   allowMemberPosts: true,

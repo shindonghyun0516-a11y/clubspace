@@ -4,23 +4,17 @@ import {
   doc,
   getDoc,
   getDocs,
-  setDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   limit,
-  startAfter,
   onSnapshot,
   serverTimestamp,
   increment,
   writeBatch,
-  Timestamp,
-  QueryDocumentSnapshot,
-  DocumentData,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import {
   Club,
   ClubMember,
@@ -57,10 +51,52 @@ export const createClub = async (
   const clubId = generateClubId();
   const now = new Date();
   
+  // Check current authentication state
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error('사용자가 로그인되어 있지 않습니다.');
+  }
+  
+  if (!currentUser.emailVerified) {
+    throw new Error('이메일 인증이 필요합니다.');
+  }
+  
+  if (currentUser.uid !== ownerUid) {
+    throw new Error('인증된 사용자와 소유자가 일치하지 않습니다.');
+  }
+  
+  // Force token refresh to ensure we have valid permissions
+  try {
+    await currentUser.getIdToken(true); // Force refresh
+    console.log('Token refreshed successfully');
+  } catch (tokenError) {
+    console.error('Token refresh failed:', tokenError);
+    throw new Error('인증 토큰 갱신에 실패했습니다. 다시 로그인해주세요.');
+  }
+  
+  // Debug: Check authentication state
+  console.log('createClub - Auth Debug:', {
+    currentUser: {
+      uid: currentUser.uid,
+      email: currentUser.email,
+      emailVerified: currentUser.emailVerified
+    },
+    ownerUid,
+    clubId
+  });
+  
+  // Validate required fields
+  if (!clubData.clubName?.trim()) {
+    throw new Error('Club name is required');
+  }
+  if (!clubData.description?.trim()) {
+    throw new Error('Club description is required');
+  }
+  
   const club: Club = {
     clubId,
-    clubName: clubData.clubName,
-    description: clubData.description,
+    clubName: clubData.clubName.trim(),
+    description: clubData.description.trim(),
     ownerUid,
     createdAt: now,
     updatedAt: now,
@@ -68,7 +104,7 @@ export const createClub = async (
     settings: { ...DEFAULT_CLUB_SETTINGS, ...clubData.settings },
     memberCount: 1,
     maxMembers: clubData.maxMembers,
-    tags: clubData.tags,
+    tags: clubData.tags || [],
     isPublic: clubData.isPublic,
   };
 
@@ -98,11 +134,17 @@ export const createClub = async (
 
     // Create club document
     const clubRef = doc(db, CLUBS_COLLECTION, clubId);
-    batch.set(clubRef, {
-      ...club,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+    
+    // Remove undefined fields before saving to Firestore
+    const clubDataToSave = Object.fromEntries(
+      Object.entries({
+        ...club,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }).filter(([_, value]) => value !== undefined)
+    );
+    
+    batch.set(clubRef, clubDataToSave);
 
     // Create club member document
     const memberRef = doc(db, CLUB_MEMBERS_COLLECTION, `${clubId}_${ownerUid}`);
@@ -124,8 +166,50 @@ export const createClub = async (
 
     return club;
   } catch (error) {
-    console.error('Error creating club:', error);
-    throw new Error('Failed to create club');
+    console.error('Error creating club - Full details:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: (error as any)?.code,
+      errorDetails: (error as any)?.details,
+      clubId,
+      ownerUid
+    });
+    
+    // Provide more specific error messages based on Firebase error codes
+    if (error instanceof Error) {
+      const firebaseError = error as any;
+      
+      // Firebase specific error codes
+      if (firebaseError.code === 'permission-denied') {
+        throw new Error('권한이 거부되었습니다. Firebase 보안 규칙을 확인해주세요.');
+      }
+      
+      if (firebaseError.code === 'unauthenticated') {
+        throw new Error('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+      }
+      
+      if (firebaseError.code === 'invalid-argument') {
+        throw new Error('잘못된 데이터 형식입니다. 입력값을 확인해주세요.');
+      }
+      
+      // String-based error detection
+      if (error.message.includes('permission')) {
+        throw new Error('권한이 없습니다. 로그인 상태와 이메일 인증을 확인해주세요.');
+      }
+      if (error.message.includes('undefined')) {
+        throw new Error('잘못된 데이터가 포함되어 있습니다.');
+      }
+      if (error.message.includes('already exists')) {
+        throw new Error('이미 존재하는 클럽 이름입니다.');
+      }
+      
+      // Return original error message for debugging in development
+      if (process.env.NODE_ENV === 'development') {
+        throw new Error(`클럽 생성 실패 [개발 모드]: ${error.message}`);
+      }
+    }
+    
+    throw new Error('클럽 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
   }
 };
 
@@ -206,14 +290,12 @@ export const getUserClubs = async (uid: string): Promise<Club[]> => {
       return [];
     }
 
-    // Get clubs information
-    const clubs: Club[] = [];
-    for (const clubId of clubIds) {
-      const club = await getClub(clubId);
-      if (club && club.status === 'active') {
-        clubs.push(club);
-      }
-    }
+    // Get clubs information in parallel for better performance
+    const clubPromises = clubIds.map(clubId => getClub(clubId));
+    const clubResults = await Promise.all(clubPromises);
+    
+    const clubs: Club[] = clubResults
+      .filter((club): club is Club => club !== null && club.status === 'active');
 
     return clubs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   } catch (error) {
@@ -403,7 +485,6 @@ export const leaveClub = async (clubId: string, uid: string): Promise<void> => {
  */
 export const getClubMembers = async (
   clubId: string,
-  page: number = 1,
   pageLimit: number = 50
 ): Promise<ClubMemberResponse> => {
   try {
@@ -480,6 +561,68 @@ export const updateMemberRole = async (
   } catch (error) {
     console.error('Error updating member role:', error);
     throw new Error('Failed to update member role');
+  }
+};
+
+/**
+ * Remove member from club (admin action)
+ */
+export const removeMember = async (
+  clubId: string,
+  memberUid: string,
+  adminUid: string,
+  _reason?: string
+): Promise<void> => {
+  try {
+    // Check if admin has permission
+    const adminRole = await getUserClubRole(clubId, adminUid);
+    if (!adminRole || !['owner', 'organizer'].includes(adminRole)) {
+      throw new Error('Insufficient permissions to remove member');
+    }
+
+    // Check if trying to remove owner
+    const memberRole = await getUserClubRole(clubId, memberUid);
+    if (memberRole === 'owner') {
+      throw new Error('Cannot remove club owner');
+    }
+
+    // Check if trying to remove self
+    if (memberUid === adminUid) {
+      throw new Error('Cannot remove yourself. Use leave club instead');
+    }
+
+    const memberRef = doc(db, CLUB_MEMBERS_COLLECTION, `${clubId}_${memberUid}`);
+    const memberSnap = await getDoc(memberRef);
+
+    if (!memberSnap.exists()) {
+      throw new Error('Member not found');
+    }
+
+    const batch = writeBatch(db);
+
+    // Remove member
+    batch.delete(memberRef);
+
+    // Update club member count
+    const clubRef = doc(db, CLUBS_COLLECTION, clubId);
+    batch.update(clubRef, {
+      memberCount: increment(-1),
+      updatedAt: serverTimestamp(),
+    });
+
+    // Update club stats
+    const statsRef = doc(db, CLUB_STATS_COLLECTION, clubId);
+    batch.update(statsRef, {
+      totalMembers: increment(-1),
+      activeMembers: increment(-1),
+      lastActivityAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Error removing member:', error);
+    throw error;
   }
 };
 

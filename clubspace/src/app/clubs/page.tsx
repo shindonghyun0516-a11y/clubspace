@@ -6,6 +6,7 @@ import { AuthGuard } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useClubStore } from '@/store/clubStore';
 import { ClubSearchParams } from '@/types/club';
+import { formatDateSafe, formatRelativeTime } from '@/lib/utils/dateUtils';
 
 export default function ClubsPage() {
   const { user } = useAuth();
@@ -77,13 +78,7 @@ export default function ClubsPage() {
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('ko-KR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(date);
-  };
+  // ❌ 제거됨: 안전하지 않은 formatDate 함수
 
   const formatMemberCount = (count: number) => {
     return count.toLocaleString() + '명';
@@ -237,7 +232,7 @@ export default function ClubsPage() {
                             </svg>
                             {formatMemberCount(club.memberCount)}
                           </div>
-                          <div>{formatDate(club.updatedAt)}</div>
+                          <div>{formatDateSafe(club.updatedAt, { month: 'short', day: 'numeric' }, 'ko-KR', '날짜 없음')}</div>
                         </div>
 
                         {club.tags.length > 0 && (
@@ -307,7 +302,7 @@ export default function ClubsPage() {
                             </svg>
                             {formatMemberCount(club.memberCount)}
                           </div>
-                          <div>{formatDate(club.createdAt)}</div>
+                          <div>{formatDateSafe(club.createdAt, { month: 'short', day: 'numeric' }, 'ko-KR', '날짜 없음')}</div>
                         </div>
 
                         {club.tags.length > 0 && (

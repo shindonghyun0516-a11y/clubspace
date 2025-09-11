@@ -7,6 +7,8 @@ import { AuthGuard } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useClubStore } from '@/store/clubStore';
 import { ClubRole } from '@/types/club';
+import MemberManagementItem from '@/components/club/MemberManagementItem';
+import { formatDateSafe } from '@/lib/utils/dateUtils';
 
 export default function ClubDetailPage() {
   const params = useParams();
@@ -30,6 +32,8 @@ export default function ClubDetailPage() {
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<ClubRole | 'all'>('all');
 
   const clubId = params.clubId as string;
 
@@ -100,13 +104,7 @@ export default function ClubDetailPage() {
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(date);
-  };
+  // ❌ 제거됨: 안전하지 않은 formatDate 함수 (dateUtils.formatDateSafe 사용)
 
   const getRoleDisplayName = (role: ClubRole) => {
     const roleNames = {
@@ -170,7 +168,16 @@ export default function ClubDetailPage() {
 
   const isMember = userRole !== null;
   const permissions = user ? checkPermissions(clubId, user.uid) : null;
-  const displayedMembers = showAllMembers ? clubMembers : clubMembers.slice(0, 6);
+  
+  // Filter and search logic for members
+  const filteredMembers = clubMembers.filter((member) => {
+    const matchesSearch = memberSearchQuery === '' || 
+      member.uid.toLowerCase().includes(memberSearchQuery.toLowerCase());
+    const matchesRole = selectedRoleFilter === 'all' || member.role === selectedRoleFilter;
+    return matchesSearch && matchesRole;
+  });
+  
+  const displayedMembers = showAllMembers ? filteredMembers : filteredMembers.slice(0, 6);
 
   return (
     <AuthGuard requireAuth={true}>
@@ -206,7 +213,7 @@ export default function ClubDetailPage() {
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a4 4 0 118 0v4m-4 6v6m-5-10h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" />
                     </svg>
-                    {formatDate(currentClub.createdAt)} 생성
+                    {formatDateSafe(currentClub.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }, 'ko-KR', '날짜 없음')} 생성
                   </div>
                 </div>
 
@@ -367,38 +374,65 @@ export default function ClubDetailPage() {
                   <span className="text-sm text-gray-500">{currentClub.memberCount}명</span>
                 </div>
 
+                {/* Member Search and Filter */}
+                <div className="mb-4 space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="멤버 검색..."
+                      value={memberSearchQuery}
+                      onChange={(e) => setMemberSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <select
+                    value={selectedRoleFilter}
+                    onChange={(e) => setSelectedRoleFilter(e.target.value as ClubRole | 'all')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="all">모든 역할</option>
+                    <option value="owner">소유자</option>
+                    <option value="organizer">운영진</option>
+                    <option value="member">멤버</option>
+                    <option value="guest">게스트</option>
+                  </select>
+                </div>
+
                 {clubMembers.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {displayedMembers.map((member) => (
-                      <div key={member.uid} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium text-gray-600">
-                              {member.uid.slice(0, 2).toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              멤버 {member.uid.slice(0, 8)}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {formatDate(member.joinedAt)}
-                            </p>
-                          </div>
-                        </div>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(member.role)}`}>
-                          {getRoleDisplayName(member.role)}
-                        </span>
-                      </div>
+                      <MemberManagementItem
+                        key={member.uid}
+                        member={member}
+                        clubId={currentClub.clubId}
+                        currentUserUid={user?.uid || ''}
+                        currentUserRole={userRole}
+                        onMemberUpdate={() => {
+                          loadClubMembers(currentClub.clubId);
+                          getClub(currentClub.clubId);
+                        }}
+                      />
                     ))}
 
-                    {clubMembers.length > 6 && (
+                    {filteredMembers.length > 6 && (
                       <button
                         onClick={() => setShowAllMembers(!showAllMembers)}
                         className="w-full text-center text-sm text-blue-600 hover:text-blue-500 py-2"
                       >
-                        {showAllMembers ? '접기' : `${clubMembers.length - 6}명 더 보기`}
+                        {showAllMembers ? '접기' : `${filteredMembers.length - 6}명 더 보기`}
                       </button>
+                    )}
+                    
+                    {filteredMembers.length === 0 && (memberSearchQuery || selectedRoleFilter !== 'all') && (
+                      <div className="text-center py-4 text-gray-500">
+                        검색 결과가 없습니다.
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -412,7 +446,7 @@ export default function ClubDetailPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">생성일</span>
-                    <span className="text-gray-900">{formatDate(currentClub.createdAt)}</span>
+                    <span className="text-gray-900">{formatDateSafe(currentClub.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }, 'ko-KR', '날짜 없음')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">공개 여부</span>

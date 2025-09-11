@@ -48,16 +48,25 @@ if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   // Connect to emulators only if enabled via environment variable
   if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
     try {
+      // Connect to Auth emulator
+      if (auth && !auth._delegate._config?.emulator) {
+        auth.useAuthEmulator('http://localhost:9098');
+      }
+      
       // Connect to Firestore emulator
-      connectFirestoreEmulator(db, 'localhost', 8080);
+      if (!db._delegate._settings?.host?.includes('localhost')) {
+        connectFirestoreEmulator(db, 'localhost', 8082);
+      }
       
       // Connect to Storage emulator
-      connectStorageEmulator(storage, 'localhost', 9199);
+      if (!storage._delegate._host?.includes('localhost')) {
+        connectStorageEmulator(storage, 'localhost', 9199);
+      }
       
-      console.log('Connected to Firebase emulators');
+      console.log('✅ Connected to Firebase emulators');
     } catch (error) {
       // Emulators already connected or not available
-      console.log('Firebase emulators connection skipped:', error);
+      console.log('⚠️ Firebase emulators connection skipped:', error);
     }
   }
 }
