@@ -244,15 +244,39 @@ export const updateClub = async (
   clubId: string,
   updates: UpdateClubData
 ): Promise<void> => {
+  console.log('🔄 [clubService] updateClub called - Version 2.0');
+  console.log('🔄 [clubService] Club ID:', clubId);
+  console.log('🔄 [clubService] Updates:', updates);
+  
   try {
     const clubRef = doc(db, CLUBS_COLLECTION, clubId);
+    
+    // Clean up undefined values to prevent Firestore errors
+    const cleanUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    );
+    
+    console.log('✅ [clubService] Clean updates for Firestore:', cleanUpdates);
+    
     await updateDoc(clubRef, {
-      ...updates,
+      ...cleanUpdates,
       updatedAt: serverTimestamp(),
     });
+    
+    console.log('🎉 [clubService] Club updated successfully:', clubId);
   } catch (error) {
-    console.error('Error updating club:', error);
-    throw new Error('Failed to update club');
+    console.error('❌ [clubService] Error updating club:', error);
+    console.error('❌ [clubService] Full error object:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      code: (error as any).code,
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    console.error('❌ [clubService] Club ID:', clubId);
+    console.error('❌ [clubService] Updates data:', updates);
+    
+    // Preserve the original error - NO MORE ERROR MASKING!
+    throw error;
   }
 };
 

@@ -200,7 +200,32 @@ export default function ClubDetailPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-gray-600 mb-4">{currentClub.description}</p>
+                <div className="mb-4">
+                  <div 
+                    className="bg-gray-50 rounded-lg p-3"
+                    style={{ 
+                      width: '834.23px',
+                      maxWidth: '100%',
+                      height: 'auto',
+                      outline: 'none'
+                    }}
+                  >
+                    <p 
+                      className="text-gray-600 text-sm leading-relaxed"
+                      style={{ 
+                        wordBreak: 'break-all',
+                        overflowWrap: 'anywhere',
+                        whiteSpace: 'pre-wrap',
+                        maxWidth: '834.23px',
+                        width: '834.23px',
+                        outline: 'none',
+                        border: 'none'
+                      }}
+                    >
+                      {currentClub.description || '클럽 소개가 없습니다.'}
+                    </p>
+                  </div>
+                </div>
                 
                 <div className="flex items-center space-x-6 text-sm text-gray-500">
                   <div className="flex items-center">

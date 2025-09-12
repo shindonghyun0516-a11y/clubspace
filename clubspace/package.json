@@ -13,6 +13,7 @@
     "firebase:emulators": "firebase emulators:start"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "firebase": "^12.2.1",
     "next": "15.5.2",
     "react": "19.1.0",

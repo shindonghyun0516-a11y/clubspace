@@ -140,17 +140,26 @@ export const useClubStore = create<ClubStore>()(
 
         // Update club
         updateClub: async (clubId: string, updates: UpdateClubData) => {
+          console.log('🏪 [clubStore] updateClub called - Version 2.0');
+          console.log('🏪 [clubStore] Club ID:', clubId);
+          console.log('🏪 [clubStore] Original updates:', updates);
+          
           try {
             set({ isLoading: true, error: null });
             
             // Validate and sanitize data
             const sanitizedUpdates = sanitizeUpdateClubData(updates);
+            console.log('🏪 [clubStore] Sanitized updates:', sanitizedUpdates);
+            
             const validation = validateUpdateClubData(sanitizedUpdates);
+            console.log('🏪 [clubStore] Validation result:', validation);
             
             if (!validation.isValid) {
+              console.error('❌ [clubStore] Validation failed:', validation.errors);
               throw new Error(validation.errors[0]);
             }
             
+            console.log('🏪 [clubStore] Calling service updateClub...');
             await updateClub(clubId, sanitizedUpdates);
             
             // Update local state
@@ -171,8 +180,11 @@ export const useClubStore = create<ClubStore>()(
                 : currentClub,
               isLoading: false,
             });
+            console.log('🎉 [clubStore] State updated successfully');
           } catch (error) {
+            console.error('❌ [clubStore] updateClub failed:', error);
             const errorMessage = getClubErrorMessage(error);
+            console.log('🏪 [clubStore] Error message:', errorMessage);
             set({ error: errorMessage, isLoading: false });
             throw error;
           }
