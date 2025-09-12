@@ -5,8 +5,7 @@ import {
   getDoc, 
   updateDoc, 
   deleteDoc,
-  serverTimestamp,
-  Timestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { updateProfile, User as FirebaseUser } from 'firebase/auth';
 import { db } from '@/lib/firebase';

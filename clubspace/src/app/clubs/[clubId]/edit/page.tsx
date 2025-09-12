@@ -7,7 +7,6 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { AuthGuard } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useClubStore } from '@/store/clubStore';
-import { ClubRole } from '@/types/club';
 import EditClubForm from '@/components/club/EditClubForm';
 
 export default function ClubEditPage() {

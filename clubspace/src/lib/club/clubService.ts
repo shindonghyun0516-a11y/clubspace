@@ -141,7 +141,7 @@ export const createClub = async (
         ...club,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      }).filter(([_, value]) => value !== undefined)
+      }).filter(([, value]) => value !== undefined)
     );
     
     batch.set(clubRef, clubDataToSave);
@@ -253,7 +253,7 @@ export const updateClub = async (
     
     // Clean up undefined values to prevent Firestore errors
     const cleanUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, value]) => value !== undefined)
+      Object.entries(updates).filter(([, value]) => value !== undefined)
     );
     
     console.log('✅ [clubService] Clean updates for Firestore:', cleanUpdates);

@@ -93,7 +93,7 @@ export const useAuth = () => {
     },
     
     // User role/permission helpers (can be extended)
-    hasRole: (role: string) => {
+    hasRole: (_role: string) => {
       // For now, just check if user exists
       // This can be extended when role system is implemented
       return isAuthenticated;

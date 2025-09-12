@@ -6,7 +6,7 @@ import { AuthGuard } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useClubStore } from '@/store/clubStore';
 import { ClubSearchParams } from '@/types/club';
-import { formatDateSafe, formatRelativeTime } from '@/lib/utils/dateUtils';
+import { formatDateSafe } from '@/lib/utils/dateUtils';
 
 export default function ClubsPage() {
   const { user } = useAuth();

@@ -175,7 +175,7 @@ export default function EditClubForm({ club, onSuccess, onCancel }: EditClubForm
         description: formData.description?.trim() || '',
         isPublic: formData.isPublic,
         tags: formData.tags || [],
-        settings: formData.settings || {},
+        settings: formData.settings as any,
       };
       
       // Only include maxMembers if it's a valid number
@@ -225,18 +225,18 @@ export default function EditClubForm({ club, onSuccess, onCancel }: EditClubForm
       case 'clubName':
         if (!value || value.trim().length === 0) {
           errors.clubName = '클럽 이름은 필수입니다.';
-        } else if (value.trim().length < CLUB_VALIDATION.MIN_CLUB_NAME) {
-          errors.clubName = `클럽 이름은 최소 ${CLUB_VALIDATION.MIN_CLUB_NAME}자 이상이어야 합니다.`;
-        } else if (value.trim().length > CLUB_VALIDATION.MAX_CLUB_NAME) {
-          errors.clubName = `클럽 이름은 최대 ${CLUB_VALIDATION.MAX_CLUB_NAME}자까지 가능합니다.`;
+        } else if (value.trim().length < CLUB_VALIDATION.NAME_MIN_LENGTH) {
+          errors.clubName = `클럽 이름은 최소 ${CLUB_VALIDATION.NAME_MIN_LENGTH}자 이상이어야 합니다.`;
+        } else if (value.trim().length > CLUB_VALIDATION.NAME_MAX_LENGTH) {
+          errors.clubName = `클럽 이름은 최대 ${CLUB_VALIDATION.NAME_MAX_LENGTH}자까지 가능합니다.`;
         } else {
           delete errors.clubName;
         }
         break;
         
       case 'description':
-        if (value && value.length > CLUB_VALIDATION.MAX_DESCRIPTION) {
-          errors.description = `설명은 최대 ${CLUB_VALIDATION.MAX_DESCRIPTION}자까지 가능합니다.`;
+        if (value && value.length > CLUB_VALIDATION.DESCRIPTION_MAX_LENGTH) {
+          errors.description = `설명은 최대 ${CLUB_VALIDATION.DESCRIPTION_MAX_LENGTH}자까지 가능합니다.`;
         } else {
           delete errors.description;
         }
@@ -247,8 +247,8 @@ export default function EditClubForm({ club, onSuccess, onCancel }: EditClubForm
           const numValue = Number(value);
           if (isNaN(numValue) || numValue < 1) {
             errors.maxMembers = '최대 멤버 수는 1 이상이어야 합니다.';
-          } else if (numValue > CLUB_VALIDATION.MAX_MEMBERS) {
-            errors.maxMembers = `최대 멤버 수는 ${CLUB_VALIDATION.MAX_MEMBERS}명까지 가능합니다.`;
+          } else if (numValue > CLUB_VALIDATION.MAX_MEMBERS_LIMIT) {
+            errors.maxMembers = `최대 멤버 수는 ${CLUB_VALIDATION.MAX_MEMBERS_LIMIT}명까지 가능합니다.`;
           } else if (numValue < (club.memberCount || 0)) {
             errors.maxMembers = `최대 멤버 수는 현재 멤버 수(${club.memberCount}명)보다 적을 수 없습니다.`;
           } else {

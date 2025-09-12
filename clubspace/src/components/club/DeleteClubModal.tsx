@@ -14,7 +14,7 @@ interface DeleteClubModalProps {
 
 export default function DeleteClubModal({ club, isOpen, onClose, onSuccess }: DeleteClubModalProps) {
   const router = useRouter();
-  const { deleteClub, isLoading, error, clearError } = useClubStore();
+  const { deleteClub, error, clearError } = useClubStore();
 
   const [step, setStep] = useState<'warning' | 'confirm' | 'deleting'>('warning');
   const [clubNameInput, setClubNameInput] = useState('');
@@ -144,7 +144,7 @@ export default function DeleteClubModal({ club, isOpen, onClose, onSuccess }: De
                   <p className="text-sm font-medium text-gray-900">삭제할 클럽</p>
                   <p className="text-lg font-semibold text-gray-900 mt-1">{club.clubName}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    생성일: {new Date(club.createdAt.seconds * 1000).toLocaleDateString('ko-KR', {
+                    생성일: {new Date((club.createdAt as any).seconds * 1000).toLocaleDateString('ko-KR', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
